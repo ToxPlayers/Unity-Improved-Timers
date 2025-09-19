@@ -3,18 +3,21 @@ using System;
 using UnityEngine;
 
 namespace ScaledTimers {
+     
     [Serializable]
     public abstract class ScaledTimerBase : IDisposable {
-        [ShowInInspector, ReadOnly] public float TimeRunning { get; protected set; }
-        [ShowInInspector, ReadOnly] public bool IsRunning { get; private set; }
+        [ShowInInspector, ReadOnly, HideInEditorMode] public float TimeRunning { get; protected set; }
+        [ShowInInspector, ReadOnly, HideInEditorMode] public bool IsRunning { get; private set; }
+        [ShowInInspector, HideInEditorMode] public abstract bool IsTimerOver { get; }
 
         public event Action OnTimerStart = delegate { };
         public event Action OnTimerStop = delegate { };
         public event Action<bool> OnIsTimerRunning = delegate { };
         protected ScaledTimerBase() { }
-         
-        public void Start() {
-            TimeRunning = 0;
+
+        [HorizontalGroup("buttons"), Button, HideIf(nameof(IsRunning)), HideInEditorMode]
+        public void Restart() {
+            Reset();
             if (!IsRunning) {
                 SetIsTimerRunning(true);
                 TimerManager.RegisterTimer(this);
@@ -22,6 +25,7 @@ namespace ScaledTimers {
             }
         }
 
+        [HorizontalGroup("buttons"), Button, ShowIf(nameof(IsRunning)), HideInEditorMode]
         public void Stop() {
             if (IsRunning) {
                 SetIsTimerRunning(false);
@@ -30,19 +34,18 @@ namespace ScaledTimers {
             }
         }
         public abstract void Tick();
-        public abstract bool IsTimerOver { get; }
         public void SetIsTimerRunning(bool isRunning)
         {
             IsRunning = isRunning;
             OnIsTimerRunning.Invoke(IsRunning);
-        }
-        public void Resume() => SetIsTimerRunning(true);  
+        } 
+        public void ToggleIsTimerRunning() => SetIsTimerRunning(!IsRunning);
+        [HorizontalGroup("buttons"), Button, HideIf(nameof(IsRunning)), HideInEditorMode]
+        public void Resume() => SetIsTimerRunning(true);
+        [HorizontalGroup("buttons"), Button, ShowIf(nameof(IsRunning)), HideInEditorMode]
         public void Pause() => SetIsTimerRunning(false);
         public virtual void Reset() => TimeRunning = 0;
 
-        public virtual void Reset(float newTime) {
-            Reset();
-        }
 
         bool _disposed;
 

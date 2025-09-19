@@ -1,17 +1,20 @@
 using System;
 using UnityEngine;
+using static Unity.IntegerTime.RationalTime;
 
 namespace ScaledTimers {
     /// <summary>
-    /// Timer that ticks at a specific frequency. (N times per P seconds)
+    /// Timer that ticks at a specific frequency. (<see cref="TicksPerTime"/> times per <see cref="PerSeconds"/> seconds)
+    /// DOESNT INCLUDE TICKING TWICE AT ONCE FOR MORE THAN ONE TICK A FRAME!!!
     /// </summary>
     [Serializable]
     public class FrequencyTimer : ScaledTimerBase {
-        public int TicksPerTime { get; private set; }
+        public int TicksPerTime = 10;
         public float PerSeconds = 1f;
         public Action OnTick = delegate { };
         
         float timeThreshold;
+        public FrequencyTimer() : base() { CalculateTimeThreshold(10); }
 
         public FrequencyTimer(int ticksPerSecond) : base() {
             CalculateTimeThreshold(ticksPerSecond);
@@ -42,6 +45,11 @@ namespace ScaledTimers {
         void CalculateTimeThreshold(int ticksPerSecond) {
             TicksPerTime = ticksPerSecond;
             timeThreshold = PerSeconds / TicksPerTime;
+        }
+
+        public override string ToString()
+        {
+            return $"FreqTimer({TicksPerTime:F2}/{TicksPerTime:F2}s over {TimeRunning:F2}s)"; 
         }
     }
 }

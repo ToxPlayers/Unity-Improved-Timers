@@ -14,5 +14,9 @@ namespace ScaledTimers {
             }
         }
         public override bool IsTimerOver => false;
+        public override string ToString()
+        {
+            return "Stopwatch(" + TimeRunning + ")";
+        }
     }
 }

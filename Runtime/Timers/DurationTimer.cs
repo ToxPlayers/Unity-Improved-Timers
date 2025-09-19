@@ -8,7 +8,7 @@ namespace ScaledTimers {
     [Serializable]
     public class DurationTimer : ScaledTimerBase {
          
-        public float MaxTime = Mathf.Epsilon;
+        public float MaxTime;
         public bool StopOnTimerOver;
         public float NormalizedTimeUnclamped
         {
@@ -22,10 +22,17 @@ namespace ScaledTimers {
         public float NormalizedTime => Mathf.Clamp01(NormalizedTimeUnclamped);
         public float Countdown => NormalizedTime - 1f;
         public override bool IsTimerOver => TimeRunning >= MaxTime;
-        public int LoopsCount => Mathf.FloorToInt(NormalizedTimeUnclamped); 
-        public DurationTimer(float maxTime) { MaxTime = maxTime; }
+        public int LoopsCount => Mathf.FloorToInt(NormalizedTimeUnclamped);
+        public DurationTimer() : base() { MaxTime = 0f; }
+        public DurationTimer(float maxTime) : base() { MaxTime = maxTime; }
         public event Action OnTimerOver = delegate { };
         int _lastLoopCountInvoked = 0;
+
+        public virtual void Reset(float maxTime)
+        {
+            MaxTime = maxTime;
+            Reset();
+        }
         public override void Tick() {
             if (IsRunning)
             {
@@ -56,5 +63,9 @@ namespace ScaledTimers {
             _lastLoopCountInvoked = 0;
         }
 
+        public override string ToString()
+        {
+            return $"Duration({TimeRunning:F2} / {MaxTime:F2} = {NormalizedTimeUnclamped:F2})";
+        }
     }
 }

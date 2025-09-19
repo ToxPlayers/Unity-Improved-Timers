@@ -3,10 +3,10 @@ using UnityEngine;
 using UnityEngine.LowLevel;
 using UnityEngine.PlayerLoop;
 
-namespace ScaledTimers {
+namespace ScaledTimers { 
     internal static class TimerBootstrapper {
         static PlayerLoopSystem timerSystem;
-        
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
         internal static void Initialize() {
             PlayerLoopSystem currentPlayerLoop = PlayerLoop.GetCurrentPlayerLoop();
@@ -22,12 +22,11 @@ namespace ScaledTimers {
             EditorApplication.playModeStateChanged += OnPlayModeState;
             
             static void OnPlayModeState(PlayModeStateChange state) {
-                if (state == PlayModeStateChange.ExitingPlayMode) {
+                if (state == PlayModeStateChange.ExitingPlayMode)
+                {
                     PlayerLoopSystem currentPlayerLoop = PlayerLoop.GetCurrentPlayerLoop();
                     RemoveTimerManager<Update>(ref currentPlayerLoop);
-                    PlayerLoop.SetPlayerLoop(currentPlayerLoop);
-                    
-                    TimerManager.Clear();
+                    EditorApplication.delayCall += TimerManager.DisposeOnPlayModeExit;
                 }
             }
 #endif
