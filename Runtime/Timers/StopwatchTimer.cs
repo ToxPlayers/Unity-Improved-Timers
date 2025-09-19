@@ -1,18 +1,18 @@
+using System;
 using UnityEngine;
 
-namespace ImprovedTimers {
+namespace ScaledTimers {
     /// <summary>
-    /// Timer that counts up from zero to infinity.  Great for measuring durations.
+    /// Timer that counts up from zero to infinity. 
     /// </summary>
-    public class StopwatchTimer : Timer {
-        public StopwatchTimer() : base(0) { }
-
+    [Serializable]
+    public class StopwatchTimer : ScaledTimerBase {
+        public StopwatchTimer() : base() { }
         public override void Tick() {
             if (IsRunning) {
-                CurrentTime += Time.deltaTime;
+                TimeRunning += Time.deltaTime;
             }
         }
-
-        public override bool IsFinished => false;
+        public override bool IsTimerOver => false;
     }
 }

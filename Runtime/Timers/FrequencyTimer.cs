@@ -1,36 +1,37 @@
 using System;
 using UnityEngine;
 
-namespace ImprovedTimers {
+namespace ScaledTimers {
     /// <summary>
-    /// Timer that ticks at a specific frequency. (N times per second)
+    /// Timer that ticks at a specific frequency. (N times per P seconds)
     /// </summary>
-    public class FrequencyTimer : Timer {
-        public int TicksPerSecond { get; private set; }
-        
+    [Serializable]
+    public class FrequencyTimer : ScaledTimerBase {
+        public int TicksPerTime { get; private set; }
+        public float PerSeconds = 1f;
         public Action OnTick = delegate { };
         
         float timeThreshold;
 
-        public FrequencyTimer(int ticksPerSecond) : base(0) {
+        public FrequencyTimer(int ticksPerSecond) : base() {
             CalculateTimeThreshold(ticksPerSecond);
         }
 
         public override void Tick() {
-            if (IsRunning && CurrentTime >= timeThreshold) {
-                CurrentTime -= timeThreshold;
+            if (IsRunning && TimeRunning >= timeThreshold) {
+                TimeRunning -= timeThreshold;
                 OnTick.Invoke();
             }
 
-            if (IsRunning && CurrentTime < timeThreshold) {
-                CurrentTime += Time.deltaTime;
+            if (IsRunning && TimeRunning < timeThreshold) {
+                TimeRunning += Time.deltaTime;
             }
         }
 
-        public override bool IsFinished => !IsRunning;
+        public override bool IsTimerOver => !IsRunning;
 
         public override void Reset() {
-            CurrentTime = 0;
+            TimeRunning = 0;
         }
         
         public void Reset(int newTicksPerSecond) {
@@ -39,8 +40,8 @@ namespace ImprovedTimers {
         }
         
         void CalculateTimeThreshold(int ticksPerSecond) {
-            TicksPerSecond = ticksPerSecond;
-            timeThreshold = 1f / TicksPerSecond;
+            TicksPerTime = ticksPerSecond;
+            timeThreshold = PerSeconds / TicksPerTime;
         }
     }
 }
