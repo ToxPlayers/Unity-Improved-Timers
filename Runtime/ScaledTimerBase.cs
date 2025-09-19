@@ -15,6 +15,10 @@ namespace ScaledTimers {
         public event Action<bool> OnIsTimerRunning = delegate { };
         protected ScaledTimerBase() { }
 
+        /// <summary> 
+        /// Resets and registers the timer<br/>
+        /// Invokes <see cref="OnTimerStop"/> and <see cref="OnIsTimerRunning"/>
+        /// </summary>
         [HorizontalGroup("buttons"), Button, HideIf(nameof(IsRunning)), HideInEditorMode]
         public void Restart() {
             Reset();
@@ -25,6 +29,10 @@ namespace ScaledTimers {
             }
         }
 
+        /// <summary> 
+        /// Stops the deregisters the timer<br/>
+        /// Invokes <see cref="OnTimerStop"/> and <see cref="OnIsTimerRunning"/>
+        /// </summary>
         [HorizontalGroup("buttons"), Button, ShowIf(nameof(IsRunning)), HideInEditorMode]
         public void Stop() {
             if (IsRunning) {
@@ -34,14 +42,28 @@ namespace ScaledTimers {
             }
         }
         public abstract void Tick();
+
+        /// <summary> 
+        /// Invokes <see cref="OnIsTimerRunning"/>
+        /// </summary>
         public void SetIsTimerRunning(bool isRunning)
         {
             IsRunning = isRunning;
             OnIsTimerRunning.Invoke(IsRunning);
-        } 
+        }
+        /// <summary>
+        /// Toggles between <see cref="Pause"/> and <see cref="Resume"/>
+        /// </summary>
         public void ToggleIsTimerRunning() => SetIsTimerRunning(!IsRunning);
+        /// <summary>
+        /// same as <see cref="SetIsTimerRunning"/> true
+        /// </summary>
         [HorizontalGroup("buttons"), Button, HideIf(nameof(IsRunning)), HideInEditorMode]
         public void Resume() => SetIsTimerRunning(true);
+
+        /// <summary>
+        /// same as <see cref="SetIsTimerRunning"/> false
+        /// </summary>
         [HorizontalGroup("buttons"), Button, ShowIf(nameof(IsRunning)), HideInEditorMode]
         public void Pause() => SetIsTimerRunning(false);
         public virtual void Reset() => TimeRunning = 0;
