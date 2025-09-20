@@ -9,14 +9,14 @@ namespace ScaledTimers {
     public class StopwatchTimer : TickTimerBase {
         public StopwatchTimer() : base() { }
         public override void Tick() {
-            if (IsRunning) {
-                TimeRunning += GetDeltaTime();
+            if (IsTicking) {
+                TimeTicked += GetDeltaTime();
             }
         }
         public override bool IsTimerOver => false;
         public override string ToString()
         {
-            return "Stopwatch(" + TimeRunning + ")";
+            return "Stopwatch(" + TimeTicked + ")";
         }
     }
 }

@@ -21,20 +21,20 @@ namespace ScaledTimers {
         }
 
         public override void Tick() {
-            if (IsRunning && TimeRunning >= timeThreshold) {
-                TimeRunning -= timeThreshold;
+            if (IsTicking && TimeTicked >= timeThreshold) {
+                TimeTicked -= timeThreshold;
                 OnTick.Invoke();
             }
 
-            if (IsRunning && TimeRunning < timeThreshold) {
-                TimeRunning += GetDeltaTime();
+            if (IsTicking && TimeTicked < timeThreshold) {
+                TimeTicked += GetDeltaTime();
             }
         }
 
-        public override bool IsTimerOver => !IsRunning;
+        public override bool IsTimerOver => !IsTicking;
 
         public override void Reset() {
-            TimeRunning = 0;
+            TimeTicked = 0;
         }
         
         public void Reset(int newTicksPerSecond) {
@@ -49,7 +49,7 @@ namespace ScaledTimers {
 
         public override string ToString()
         {
-            return $"FreqTimer({TicksPerTime:F2}/{TicksPerTime:F2}s over {TimeRunning:F2}s)"; 
+            return $"FreqTimer({TicksPerTime:F2}/{TicksPerTime:F2}s over {TimeTicked:F2}s)"; 
         }
     }
 }

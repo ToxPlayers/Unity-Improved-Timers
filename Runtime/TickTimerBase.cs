@@ -6,14 +6,14 @@ namespace ScaledTimers {
      
     [Serializable]
     public abstract class TickTimerBase : IDisposable {
-        [ShowInInspector, ReadOnly, HideInEditorMode] public float TimeRunning { get; protected set; }
-        [ShowInInspector, ReadOnly, HideInEditorMode] public bool IsRunning { get; private set; }
+        [ShowInInspector, ReadOnly, HideInEditorMode] public float TimeTicked { get; protected set; }
+        [ShowInInspector, ReadOnly, HideInEditorMode] public bool IsTicking { get; private set; }
         [ShowInInspector, HideInEditorMode] public abstract bool IsTimerOver { get; }
         public bool UseUnscaledTime = false;
         public event Action OnTimerStart = delegate { };
         public event Action OnTimerStop = delegate { };
-        public event Action<bool> OnIsTimerRunning = delegate { };
-
+        public event Action<bool> OnIsTimerTicking = delegate { };
+        public bool IsRegistered { get; private set; }
         public float GetDeltaTime()
         {
             return UseUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
@@ -23,56 +23,65 @@ namespace ScaledTimers {
 
         /// <summary> 
         /// Resets and registers the timer<br/>
-        /// Invokes <see cref="OnTimerStop"/> and <see cref="OnIsTimerRunning"/>
+        /// Invokes <see cref="OnTimerStop"/> and <see cref="OnIsTimerTicking"/>
         /// </summary>
-        [HorizontalGroup("buttons"), Button, HideIf(nameof(IsRunning)), HideInEditorMode]
+        [HorizontalGroup("buttons"), Button, HideIf(nameof(IsTicking)), HideInEditorMode]
         public void Restart() {
             Reset();
-            if (!IsRunning) {
-                SetIsTimerRunning(true);
-                TimerManager.RegisterTimer(this);
+            if (!IsTicking) {
+                SetIsTicking(true);
+                if (!IsRegistered)
+                {
+                    IsRegistered = true;
+                    TimerManager.RegisterTimer(this);
+                }
                 OnTimerStart.Invoke();
             }
         }
 
         /// <summary> 
         /// Stops the deregisters the timer<br/>
-        /// Invokes <see cref="OnTimerStop"/> and <see cref="OnIsTimerRunning"/>
+        /// Invokes <see cref="OnTimerStop"/> and <see cref="OnIsTimerTicking"/>
         /// </summary>
-        [HorizontalGroup("buttons"), Button, ShowIf(nameof(IsRunning)), HideInEditorMode]
+        [HorizontalGroup("buttons"), Button, ShowIf(nameof(IsTicking)), HideInEditorMode]
         public void Stop() {
-            if (IsRunning) {
-                SetIsTimerRunning(false);
-                TimerManager.DeregisterTimer(this);
+            if (IsTicking) {
+                SetIsTicking(false);
+                if(IsRegistered)
+                {
+                    IsRegistered = false;
+                    TimerManager.DeregisterTimer(this);
+                }
                 OnTimerStop.Invoke();
             }
         }
         public abstract void Tick();
 
         /// <summary> 
-        /// Invokes <see cref="OnIsTimerRunning"/>
+        /// Doesn't start or resets the timer, just sets if its paused or running
+        /// Invokes <see cref="OnIsTimerTicking"/>
         /// </summary>
-        public void SetIsTimerRunning(bool isRunning)
+        public void SetIsTicking(bool isRunning)
         {
-            IsRunning = isRunning;
-            OnIsTimerRunning.Invoke(IsRunning);
+            IsTicking = isRunning;
+            OnIsTimerTicking.Invoke(IsTicking);
         }
         /// <summary>
         /// Toggles between <see cref="Pause"/> and <see cref="Resume"/>
         /// </summary>
-        public void ToggleIsTimerRunning() => SetIsTimerRunning(!IsRunning);
+        public void ToggleIsTicking() => SetIsTicking(!IsTicking);
         /// <summary>
-        /// same as <see cref="SetIsTimerRunning"/> true
+        /// same as <see cref="SetIsTicking"/> true
         /// </summary>
-        [HorizontalGroup("buttons"), Button, HideIf(nameof(IsRunning)), HideInEditorMode]
-        public void Resume() => SetIsTimerRunning(true);
+        [HorizontalGroup("buttons"), Button, HideIf(nameof(IsTicking)), HideInEditorMode]
+        public void Resume() => SetIsTicking(true);
 
         /// <summary>
-        /// same as <see cref="SetIsTimerRunning"/> false
+        /// same as <see cref="SetIsTicking"/> false
         /// </summary>
-        [HorizontalGroup("buttons"), Button, ShowIf(nameof(IsRunning)), HideInEditorMode]
-        public void Pause() => SetIsTimerRunning(false);
-        public virtual void Reset() => TimeRunning = 0;
+        [HorizontalGroup("buttons"), Button, ShowIf(nameof(IsTicking)), HideInEditorMode]
+        public void Pause() => SetIsTicking(false);
+        public virtual void Reset() => TimeTicked = 0;
 
 
         bool _disposed;

@@ -24,7 +24,7 @@ namespace ScaledTimers {
 
                 bool isEqual = CustomComparer != null ?
                     CustomComparer(_curValue, prevValue) :
-                    ! _curValue.Equals(prevValue);
+                    _curValue.Equals(prevValue);
                 if ( ! isEqual )
                     Reset();
             }
@@ -34,7 +34,7 @@ namespace ScaledTimers {
         static public implicit operator T(StateTimer<T> w) => w.State;
         public override string ToString()
         {
-            return $"StateTimer({State} for {TimeRunning:F2})s)";
+            return $"StateTimer({State} for {TimeTicked:F2})s)";
         }
     }
 }

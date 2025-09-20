@@ -16,12 +16,12 @@ namespace ScaledTimers {
             {
                 if (MaxTime == 0)
                     return 1f;
-                return TimeRunning / MaxTime;
+                return TimeTicked / MaxTime;
             }
         }
         public float NormalizedTime => Mathf.Clamp01(NormalizedTimeUnclamped);
         public float Countdown => NormalizedTime - 1f;
-        public override bool IsTimerOver => TimeRunning >= MaxTime;
+        public override bool IsTimerOver => !IsRegistered || ! IsTicking || TimeTicked >= MaxTime;
         public int LoopsCount => Mathf.FloorToInt(NormalizedTimeUnclamped);
         public DurationTimer() : base() { MaxTime = 0f; }
         public DurationTimer(float maxTime) : base() { MaxTime = maxTime; }
@@ -34,10 +34,10 @@ namespace ScaledTimers {
             Reset();
         }
         public override void Tick() {
-            if (IsRunning)
+            if (IsTicking)
             {
                 if (MaxTime > 0)
-                    TimeRunning += GetDeltaTime();
+                    TimeTicked += GetDeltaTime();
 
                 var isTimerOver = IsTimerOver;
                 var loopCount = LoopsCount;
@@ -65,7 +65,7 @@ namespace ScaledTimers {
 
         public override string ToString()
         {
-            return $"Duration({TimeRunning:F2} / {MaxTime:F2} = {NormalizedTimeUnclamped:F2})";
+            return $"Duration({TimeTicked:F2} / {MaxTime:F2} = {NormalizedTimeUnclamped:F2})";
         }
     }
 }
