@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace ScaledTimers {
+namespace TickTimers {
     /// <summary>
     /// Timer for duration of <see cref="MaxTime"/>
     /// </summary> 

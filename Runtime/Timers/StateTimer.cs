@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-namespace ScaledTimers {
+namespace TickTimers {
 
     [Serializable]
     public class StateTimer : StateTimer<bool> { }

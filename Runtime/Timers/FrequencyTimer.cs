@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using static Unity.IntegerTime.RationalTime;
 
-namespace ScaledTimers {
+namespace TickTimers {
     /// <summary>
     /// Timer that ticks at a specific frequency. (<see cref="TicksPerTime"/> times per <see cref="PerSeconds"/> seconds)
     /// DOESNT INCLUDE TICKING TWICE AT ONCE FOR MORE THAN ONE TICK A FRAME!!!

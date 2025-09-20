@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.LowLevel;
 using UnityEngine.PlayerLoop;
 
-namespace ScaledTimers { 
+namespace TickTimers { 
     internal static class TimerBootstrapper {
         static PlayerLoopSystem timerSystem;
 

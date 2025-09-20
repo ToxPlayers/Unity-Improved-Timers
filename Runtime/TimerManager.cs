@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ScaledTimers {
+namespace TickTimers {
     public static class TimerManager {
         static readonly HashSet<TickTimerBase> timers = new();
         static readonly List<TickTimerBase> sweep = new();

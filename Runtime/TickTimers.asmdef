@@ -1,6 +1,6 @@
 {
-    "name": "ScaledTimers",
-    "rootNamespace": "ScaledTimers",
+    "name": "TickTimers",
+    "rootNamespace": "TickTimers",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],

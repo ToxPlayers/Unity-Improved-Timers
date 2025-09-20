@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace ScaledTimers {
+namespace TickTimers {
     /// <summary>
     /// Timer that counts up from zero to infinity. 
     /// </summary>

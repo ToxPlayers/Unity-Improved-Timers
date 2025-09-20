@@ -2,7 +2,7 @@ using Sirenix.OdinInspector;
 using System;
 using UnityEngine;
 
-namespace ScaledTimers {
+namespace TickTimers {
      
     [Serializable]
     public abstract class TickTimerBase : IDisposable {
