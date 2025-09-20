@@ -9,10 +9,16 @@ namespace ScaledTimers {
         [ShowInInspector, ReadOnly, HideInEditorMode] public float TimeRunning { get; protected set; }
         [ShowInInspector, ReadOnly, HideInEditorMode] public bool IsRunning { get; private set; }
         [ShowInInspector, HideInEditorMode] public abstract bool IsTimerOver { get; }
-
+        public bool UseUnscaledTime = false;
         public event Action OnTimerStart = delegate { };
         public event Action OnTimerStop = delegate { };
         public event Action<bool> OnIsTimerRunning = delegate { };
+
+        public float GetDeltaTime()
+        {
+            return UseUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
+        } 
+
         protected ScaledTimerBase() { }
 
         /// <summary> 

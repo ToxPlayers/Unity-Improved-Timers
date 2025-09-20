@@ -37,7 +37,7 @@ namespace ScaledTimers {
             if (IsRunning)
             {
                 if (MaxTime > 0)
-                    TimeRunning += Time.deltaTime;
+                    TimeRunning += GetDeltaTime();
 
                 var isTimerOver = IsTimerOver;
                 var loopCount = LoopsCount;

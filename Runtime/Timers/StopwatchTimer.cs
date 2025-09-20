@@ -10,7 +10,7 @@ namespace ScaledTimers {
         public StopwatchTimer() : base() { }
         public override void Tick() {
             if (IsRunning) {
-                TimeRunning += Time.deltaTime;
+                TimeRunning += GetDeltaTime();
             }
         }
         public override bool IsTimerOver => false;

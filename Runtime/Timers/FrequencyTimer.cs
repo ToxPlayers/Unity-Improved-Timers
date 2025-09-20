@@ -27,7 +27,7 @@ namespace ScaledTimers {
             }
 
             if (IsRunning && TimeRunning < timeThreshold) {
-                TimeRunning += Time.deltaTime;
+                TimeRunning += GetDeltaTime();
             }
         }
 

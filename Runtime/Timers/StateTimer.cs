@@ -5,15 +5,16 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace ScaledTimers {
+
+    [Serializable]
     public class StateTimer : StateTimer<bool> { }
 
     [Serializable]
     public class StateTimer<T> : StopwatchTimer
     {
         T _curValue;
-        public Func<T,T,bool> CustomComparer;
-         
-        [ShowInInspector] public T Value
+        [NonSerialized] public Func<T,T,bool> CustomComparer;
+        [ShowInInspector] public T State
         {
             get => _curValue;
             set
@@ -30,10 +31,10 @@ namespace ScaledTimers {
         }
         public StateTimer() : base() {  }
 
-        static public implicit operator T(StateTimer<T> w) => w.Value;
+        static public implicit operator T(StateTimer<T> w) => w.State;
         public override string ToString()
         {
-            return $"StateTimer({Value} for {TimeRunning:F2})s)";
+            return $"StateTimer({State} for {TimeRunning:F2})s)";
         }
     }
 }
