@@ -21,7 +21,7 @@ namespace ScaledTimers {
         }
         public float NormalizedTime => Mathf.Clamp01(NormalizedTimeUnclamped);
         public float Countdown => NormalizedTime - 1f;
-        public override bool IsTimerOver => !IsRegistered || ! IsTicking || TimeTicked >= MaxTime;
+        public override bool IsTimerOver => !IsRegistered || TimeTicked >= MaxTime;
         public int LoopsCount => Mathf.FloorToInt(NormalizedTimeUnclamped);
         public DurationTimer() : base() { MaxTime = 0f; }
         public DurationTimer(float maxTime) : base() { MaxTime = maxTime; }
