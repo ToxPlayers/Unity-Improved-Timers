@@ -5,7 +5,7 @@ using UnityEngine;
 namespace ScaledTimers {
      
     [Serializable]
-    public abstract class ScaledTimerBase : IDisposable {
+    public abstract class TickTimerBase : IDisposable {
         [ShowInInspector, ReadOnly, HideInEditorMode] public float TimeRunning { get; protected set; }
         [ShowInInspector, ReadOnly, HideInEditorMode] public bool IsRunning { get; private set; }
         [ShowInInspector, HideInEditorMode] public abstract bool IsTimerOver { get; }
@@ -19,7 +19,7 @@ namespace ScaledTimers {
             return UseUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
         } 
 
-        protected ScaledTimerBase() { }
+        protected TickTimerBase() { }
 
         /// <summary> 
         /// Resets and registers the timer<br/>
@@ -77,7 +77,7 @@ namespace ScaledTimers {
 
         bool _disposed;
 
-        ~ScaledTimerBase() {
+        ~TickTimerBase() {
             Dispose(false);
         }
 

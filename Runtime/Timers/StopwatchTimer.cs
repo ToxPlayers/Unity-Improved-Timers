@@ -6,7 +6,7 @@ namespace ScaledTimers {
     /// Timer that counts up from zero to infinity. 
     /// </summary>
     [Serializable]
-    public class StopwatchTimer : ScaledTimerBase {
+    public class StopwatchTimer : TickTimerBase {
         public StopwatchTimer() : base() { }
         public override void Tick() {
             if (IsRunning) {

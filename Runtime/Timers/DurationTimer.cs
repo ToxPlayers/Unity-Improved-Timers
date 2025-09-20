@@ -6,7 +6,7 @@ namespace ScaledTimers {
     /// Timer for duration of <see cref="MaxTime"/>
     /// </summary> 
     [Serializable]
-    public class DurationTimer : ScaledTimerBase {
+    public class DurationTimer : TickTimerBase {
          
         public float MaxTime;
         public bool StopOnTimerOver;

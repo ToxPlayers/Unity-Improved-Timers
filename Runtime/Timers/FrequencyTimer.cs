@@ -8,7 +8,7 @@ namespace ScaledTimers {
     /// DOESNT INCLUDE TICKING TWICE AT ONCE FOR MORE THAN ONE TICK A FRAME!!!
     /// </summary>
     [Serializable]
-    public class FrequencyTimer : ScaledTimerBase {
+    public class FrequencyTimer : TickTimerBase {
         public int TicksPerTime = 10;
         public float PerSeconds = 1f;
         public Action OnTick = delegate { };

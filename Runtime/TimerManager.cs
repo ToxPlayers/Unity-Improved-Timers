@@ -3,11 +3,11 @@ using UnityEngine;
 
 namespace ScaledTimers {
     public static class TimerManager {
-        static readonly HashSet<ScaledTimerBase> timers = new();
-        static readonly List<ScaledTimerBase> sweep = new();
+        static readonly HashSet<TickTimerBase> timers = new();
+        static readonly List<TickTimerBase> sweep = new();
         
-        public static void RegisterTimer(ScaledTimerBase timer) => timers.Add(timer);
-        public static void DeregisterTimer(ScaledTimerBase timer) => timers.Remove(timer);
+        public static void RegisterTimer(TickTimerBase timer) => timers.Add(timer);
+        public static void DeregisterTimer(TickTimerBase timer) => timers.Remove(timer);
 
         public static void UpdateTimers() {
             if (timers.Count == 0) 
