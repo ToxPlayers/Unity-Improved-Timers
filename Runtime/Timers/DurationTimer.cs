@@ -33,7 +33,7 @@ namespace TickTimers {
             MaxTime = maxTime;
             Reset();
         }
-        public override void Tick() {
+        internal override void Tick() {
             if (IsTicking)
             {
                 if (MaxTime > 0)

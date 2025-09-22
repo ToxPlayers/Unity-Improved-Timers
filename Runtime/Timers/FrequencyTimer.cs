@@ -20,7 +20,7 @@ namespace TickTimers {
             CalculateTimeThreshold(ticksPerSecond);
         }
 
-        public override void Tick() {
+        internal override void Tick() {
             if (IsTicking && TimeTicked >= timeThreshold) {
                 TimeTicked -= timeThreshold;
                 OnTick.Invoke();

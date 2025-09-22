@@ -1,6 +1,7 @@
 using Sirenix.OdinInspector;
 using System;
-using UnityEngine;
+using TickTimers;
+using UnityEngine; 
 
 namespace TickTimers {
      
@@ -27,6 +28,11 @@ namespace TickTimers {
         /// </summary>
         [HorizontalGroup("buttons"), Button, HideIf(nameof(IsTicking)), HideInEditorMode]
         public void Restart() {
+            if (IsDisposed)
+            {
+                Debug.LogError("Tried restarting a disposed timer");
+                return;
+            }
             Reset();
             if (!IsTicking) {
                 SetIsTicking(true);
@@ -44,8 +50,8 @@ namespace TickTimers {
         /// Invokes <see cref="OnTimerStop"/> and <see cref="OnIsTimerTicking"/>
         /// </summary>
         [HorizontalGroup("buttons"), Button, ShowIf(nameof(IsTicking)), HideInEditorMode]
-        public void Stop() {
-            if (IsTicking) {
+        public void Stop() { 
+            if (!IsDisposed && IsTicking) {
                 SetIsTicking(false);
                 if(IsRegistered)
                 {
@@ -55,7 +61,7 @@ namespace TickTimers {
                 OnTimerStop.Invoke();
             }
         }
-        public abstract void Tick();
+        internal abstract void Tick();
 
         /// <summary> 
         /// Doesn't start or resets the timer, just sets if its paused or running
@@ -84,7 +90,8 @@ namespace TickTimers {
         public virtual void Reset() => TimeTicked = 0;
 
 
-        bool _disposed;
+        [ShowInInspector, ShowIf(nameof(IsDisposed)), InfoBox("Timer is disposed", InfoMessageType = InfoMessageType.Warning)]
+        public bool IsDisposed { get; private set; }
 
         ~TickTimerBase() {
             Dispose(false);
@@ -98,13 +105,16 @@ namespace TickTimers {
         }
 
         protected virtual void Dispose(bool disposing) {
-            if (_disposed) return;
+            if (IsDisposed) return;
 
             if (disposing) {
-                TimerManager.DeregisterTimer(this);
+                if (IsRegistered)
+                    Stop();
+                else if (IsTicking)
+                    SetIsTicking(false);
             }
 
-            _disposed = true;
+            IsDisposed = true;
         }
     }
 }

@@ -8,7 +8,7 @@ namespace TickTimers {
     [Serializable]
     public class StopwatchTimer : TickTimerBase {
         public StopwatchTimer() : base() { }
-        public override void Tick() {
+        internal override void Tick() {
             if (IsTicking) {
                 TimeTicked += GetDeltaTime();
             }
