@@ -1,3 +1,4 @@
+using Sirenix.OdinInspector;
 using System;
 using UnityEngine;
 
@@ -7,9 +8,11 @@ namespace TickTimers {
     /// </summary> 
     [Serializable]
     public class DurationTimer : TickTimerBase {
-         
+
+        [PropertyOrder(-1)]
         public float MaxTime;
-        public bool StopOnTimerOver;
+        public bool StopTickingOnTimerOver;
+        public bool DeregisterOnTimerOver;
         public float NormalizedTimeUnclamped
         {
             get
@@ -19,21 +22,29 @@ namespace TickTimers {
                 return TimeTicked / MaxTime;
             }
         }
+        [ProgressBar(0, 1), ShowIf(nameof(IsTicking) + "|| Application.isPlaying")]
         public float NormalizedTime => Mathf.Clamp01(NormalizedTimeUnclamped);
         public float Countdown => NormalizedTime - 1f;
-        public override bool IsTimerOver => !IsRegistered || TimeTicked >= MaxTime;
+        public override bool IsTimerOver => ReachedTime(MaxTime); 
         public int LoopsCount => Mathf.FloorToInt(NormalizedTimeUnclamped);
+        public float DurationOvershot
+        {
+            get
+            {
+                if(TimeTicked < MaxTime)
+                    return 0f;
+                var normTime = NormalizedTimeUnclamped;
+                var flooredNormTime = Mathf.Floor(normTime);
+                return normTime - flooredNormTime;
+            }
+        } 
+
         public DurationTimer() : base() { MaxTime = 0f; }
         public DurationTimer(float maxTime) : base() { MaxTime = maxTime; }
         public event Action OnTimerOver = delegate { };
-        int _lastLoopCountInvoked = 0;
+        int _lastLoopCountInvoked = 0; 
 
-        public virtual void Reset(float maxTime)
-        {
-            MaxTime = maxTime;
-            Reset();
-        }
-        internal override void Tick() {
+        protected override void OnTick() {
             if (IsTicking)
             {
                 if (MaxTime > 0)
@@ -52,15 +63,31 @@ namespace TickTimers {
                     _lastLoopCountInvoked = loopCount;
                 }
 
-                if (StopOnTimerOver && isTimerOver)
-                    Stop();
+                if(isTimerOver)
+                {
+                    if (DeregisterOnTimerOver)
+                        StopAndDeregister();
+                    else if (StopTickingOnTimerOver)
+                        SetIsTicking(false);
+                }
             }
         }
 
-        public override void Reset()
+        public void ResetWithOvershotOffset()
         {
-            base.Reset();
+            var offset = DurationOvershot;
+            ResetTime();
+            TimeTicked += offset;
+        }
+
+        public override void ResetTime()
+        {
+            base.ResetTime();
             _lastLoopCountInvoked = 0;
+        } 
+
+        public void SetTimerOver() {
+            TimeTicked = MaxTime;
         }
 
         public override string ToString()

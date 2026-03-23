@@ -1,22 +1,27 @@
 using Sirenix.OdinInspector;
 using System;
 using TickTimers;
-using UnityEngine; 
+using UnityEngine;
 
 namespace TickTimers {
      
-    [Serializable]
+    [Serializable, LabelText(SdfIconType.Clock)]
     public abstract class TickTimerBase : IDisposable {
         [ShowInInspector, ReadOnly, HideInEditorMode] public float TimeTicked { get; protected set; }
         [ShowInInspector, ReadOnly, HideInEditorMode] public bool IsTicking { get; private set; }
         [ShowInInspector, HideInEditorMode] public abstract bool IsTimerOver { get; }
         public bool UseUnscaledTime = false;
+        public bool FixedUpdateMode = false;
         public event Action OnTimerStart = delegate { };
         public event Action OnTimerStop = delegate { };
         public event Action<bool> OnIsTimerTicking = delegate { };
+        public bool ReachedTime(float maxTime) => TimeTicked >= maxTime;
         public bool IsRegistered { get; private set; }
+
         public float GetDeltaTime()
-        {
+        { 
+            if (Time.inFixedTimeStep)
+                return UseUnscaledTime ? Time.fixedUnscaledDeltaTime : Time.fixedDeltaTime;
             return UseUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
         } 
 
@@ -33,7 +38,7 @@ namespace TickTimers {
                 Debug.LogError("Tried restarting a disposed timer");
                 return;
             }
-            Reset();
+            ResetTime();
             if (!IsTicking) {
                 SetIsTicking(true);
                 if (!IsRegistered)
@@ -50,7 +55,7 @@ namespace TickTimers {
         /// Invokes <see cref="OnTimerStop"/> and <see cref="OnIsTimerTicking"/>
         /// </summary>
         [HorizontalGroup("buttons"), Button, ShowIf(nameof(IsTicking)), HideInEditorMode]
-        public void Stop() { 
+        public void StopAndDeregister() { 
             if (!IsDisposed && IsTicking) {
                 SetIsTicking(false);
                 if(IsRegistered)
@@ -61,7 +66,18 @@ namespace TickTimers {
                 OnTimerStop.Invoke();
             }
         }
-        internal abstract void Tick();
+
+        internal virtual void Tick() {
+#if UNITY_EDITOR
+            if (Time.inFixedTimeStep != FixedUpdateMode) {
+                Debug.LogError("Tried ticking timer outside of the correct update mode");
+                return;
+            }
+#endif
+            OnTick(); 
+        }
+
+        protected abstract void OnTick();
 
         /// <summary> 
         /// Doesn't start or resets the timer, just sets if its paused or running
@@ -87,7 +103,7 @@ namespace TickTimers {
         /// </summary>
         [HorizontalGroup("buttons"), Button, ShowIf(nameof(IsTicking)), HideInEditorMode]
         public void Pause() => SetIsTicking(false);
-        public virtual void Reset() => TimeTicked = 0;
+        public virtual void ResetTime() => TimeTicked = 0;
 
 
         [ShowInInspector, ShowIf(nameof(IsDisposed)), InfoBox("Timer is disposed", InfoMessageType = InfoMessageType.Warning)]
@@ -109,7 +125,7 @@ namespace TickTimers {
 
             if (disposing) {
                 if (IsRegistered)
-                    Stop();
+                    StopAndDeregister();
                 else if (IsTicking)
                     SetIsTicking(false);
             }

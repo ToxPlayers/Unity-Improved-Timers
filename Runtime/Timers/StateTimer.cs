@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace TickTimers {
 
@@ -25,8 +26,8 @@ namespace TickTimers {
                 bool isEqual = CustomComparer != null ?
                     CustomComparer(_curValue, prevValue) :
                     _curValue.Equals(prevValue);
-                if ( ! isEqual )
-                    Reset();
+                if (!isEqual)
+                    ResetTime();
             }
         }
         public StateTimer() : base() {  }

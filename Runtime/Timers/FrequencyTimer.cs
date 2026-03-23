@@ -11,7 +11,7 @@ namespace TickTimers {
     public class FrequencyTimer : TickTimerBase {
         public int TicksPerTime = 10;
         public float PerSeconds = 1f;
-        public Action OnTick = delegate { };
+        public Action OnTickEvent = delegate { };
         
         float timeThreshold;
         public FrequencyTimer() : base() { CalculateTimeThreshold(10); }
@@ -20,10 +20,10 @@ namespace TickTimers {
             CalculateTimeThreshold(ticksPerSecond);
         }
 
-        internal override void Tick() {
+        protected override void OnTick() {
             if (IsTicking && TimeTicked >= timeThreshold) {
                 TimeTicked -= timeThreshold;
-                OnTick.Invoke();
+                OnTickEvent.Invoke();
             }
 
             if (IsTicking && TimeTicked < timeThreshold) {
@@ -33,13 +33,13 @@ namespace TickTimers {
 
         public override bool IsTimerOver => !IsTicking;
 
-        public override void Reset() {
+        public override void ResetTime() {
             TimeTicked = 0;
         }
         
         public void Reset(int newTicksPerSecond) {
             CalculateTimeThreshold(newTicksPerSecond);
-            Reset();
+            ResetTime();
         }
         
         void CalculateTimeThreshold(int ticksPerSecond) {
@@ -47,9 +47,17 @@ namespace TickTimers {
             timeThreshold = PerSeconds / TicksPerTime;
         }
 
+        protected override void Dispose(bool disposing) {
+            if (IsDisposed) return;
+            if (disposing)
+                OnTickEvent = null;
+            base.Dispose(disposing);
+        }
+
         public override string ToString()
         {
             return $"FreqTimer({TicksPerTime:F2}/{TicksPerTime:F2}s over {TimeTicked:F2}s)"; 
         }
+         
     }
 }
