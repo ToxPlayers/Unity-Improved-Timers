@@ -1,5 +1,6 @@
 using Sirenix.OdinInspector;
 using System;
+using System.Runtime.CompilerServices;
 using TickTimers;
 using UnityEngine;
 
@@ -7,6 +8,10 @@ namespace TickTimers {
      
     [Serializable, LabelText(SdfIconType.Clock)]
     public abstract class TickTimerBase : IDisposable {
+#if UNITY_EDITOR
+        public string TIMER_SOURCE { get; private set; }
+#endif
+
         [ShowInInspector, ReadOnly, HideInEditorMode] public float TimeTicked { get; protected set; }
         [ShowInInspector, ReadOnly, HideInEditorMode] public bool IsTicking { get; private set; }
         [ShowInInspector, HideInEditorMode] public abstract bool IsTimerOver { get; }
@@ -23,10 +28,14 @@ namespace TickTimers {
             if (Time.inFixedTimeStep)
                 return UseUnscaledTime ? Time.fixedUnscaledDeltaTime : Time.fixedDeltaTime;
             return UseUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
-        } 
-
+        }
+#if UNITY_EDITOR
+        protected TickTimerBase([CallerMemberName] string src = null){ 
+            TIMER_SOURCE = src; 
+        }
+#else
         protected TickTimerBase() { }
-
+#endif
         /// <summary> 
         /// Resets and registers the timer<br/>
         /// Invokes <see cref="OnTimerStop"/> and <see cref="OnIsTimerTicking"/>

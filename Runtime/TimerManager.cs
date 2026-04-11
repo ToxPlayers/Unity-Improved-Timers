@@ -1,4 +1,5 @@
-using System.Collections.Generic; 
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace TickTimers {
@@ -46,14 +47,17 @@ namespace TickTimers {
             if(_timers.Count > 0)
             {
                 string timersNotDisposedLog = $"TimerManager: {_timers.Count} Timers were not disposed:";
-                foreach (var timer in _timers)
+                foreach (var timer in _timers) {
                     timersNotDisposedLog += '\n' + timer.ToString();
+#if UNITY_EDITOR
+                    timersNotDisposedLog += $"from [{timer.TIMER_SOURCE}";
+#endif
+                }
                 Debug.Log(timersNotDisposedLog);
             }
-
-            foreach (var timer in _timers) 
-                timer.Dispose(); 
-            
+            var copySet = new HashSet<TickTimerBase>(_timers);
+            foreach (var timer in copySet) 
+                timer.Dispose();
             _timers.Clear(); 
         }
     }
