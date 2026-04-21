@@ -26,14 +26,18 @@ namespace TickTimers {
             else
                 _timers.Remove(timer);
         }
+
+        static void CommitRegistration() { 
+            _timers.UnionWith(_toRegister);
+            _timers.ExceptWith(_toUnregister);
+        }
+
         public static void UpdateTimers() {
             if (_timers.Count == 0) 
                 return;
 
             IsUpdatingTimers = true;
-
-            _timers.UnionWith(_toRegister);
-            _timers.ExceptWith(_toUnregister);
+            CommitRegistration();
             var isFixedStep = Time.inFixedTimeStep;
             foreach (var timer in _timers)
                 if(timer.FixedUpdateMode == isFixedStep)
@@ -43,17 +47,18 @@ namespace TickTimers {
         }
         
         public static void DisposeOnPlayModeExit() 
-        { 
-            if(_timers.Count > 0)
+        {
+            CommitRegistration();
+            if (_timers.Count > 0)
             {
                 string timersNotDisposedLog = $"TimerManager: {_timers.Count} Timers were not disposed:";
                 foreach (var timer in _timers) {
-                    timersNotDisposedLog += '\n' + timer.ToString();
+                    timersNotDisposedLog += '\n' + timer.GetType().Name;
 #if UNITY_EDITOR
-                    timersNotDisposedLog += $"from [{timer.TIMER_SOURCE}";
+                    timersNotDisposedLog += $" -> from [{timer.TIMER_SOURCE_DEBUG}]";
 #endif
                 }
-                Debug.Log(timersNotDisposedLog);
+                Debug.LogWarning(timersNotDisposedLog);
             }
             var copySet = new HashSet<TickTimerBase>(_timers);
             foreach (var timer in copySet) 

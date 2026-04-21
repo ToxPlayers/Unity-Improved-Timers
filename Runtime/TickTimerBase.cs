@@ -3,22 +3,28 @@ using System;
 using System.Runtime.CompilerServices;
 using TickTimers;
 using UnityEngine;
+using Conditional = System.Diagnostics.ConditionalAttribute;
 
 namespace TickTimers {
      
     [Serializable, LabelText(SdfIconType.Clock)]
     public abstract class TickTimerBase : IDisposable {
 #if UNITY_EDITOR
-        public string TIMER_SOURCE { get; private set; }
+        public string TIMER_SOURCE_DEBUG = "Unknown";
 #endif
 
+        [Conditional("UNITY_EDITOR")]
+        public void SetTimerSourceDebug(in string src)
+#if UNITY_EDITOR 
+            { TIMER_SOURCE_DEBUG = src; }
+#else
+            {}
+#endif
         [ShowInInspector, ReadOnly, HideInEditorMode] public float TimeTicked { get; protected set; }
         [ShowInInspector, ReadOnly, HideInEditorMode] public bool IsTicking { get; private set; }
         [ShowInInspector, HideInEditorMode] public abstract bool IsTimerOver { get; }
         public bool UseUnscaledTime = false;
         public bool FixedUpdateMode = false;
-        public event Action OnTimerStart = delegate { };
-        public event Action OnTimerStop = delegate { };
         public event Action<bool> OnIsTimerTicking = delegate { };
         public bool ReachedTime(float maxTime) => TimeTicked >= maxTime;
         public bool IsRegistered { get; private set; }
@@ -28,35 +34,21 @@ namespace TickTimers {
             if (Time.inFixedTimeStep)
                 return UseUnscaledTime ? Time.fixedUnscaledDeltaTime : Time.fixedDeltaTime;
             return UseUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
-        }
-#if UNITY_EDITOR
-        protected TickTimerBase([CallerMemberName] string src = null){ 
-            TIMER_SOURCE = src; 
-        }
-#else
-        protected TickTimerBase() { }
-#endif
+        } 
+        protected TickTimerBase() { } 
         /// <summary> 
         /// Resets and registers the timer<br/>
         /// Invokes <see cref="OnTimerStop"/> and <see cref="OnIsTimerTicking"/>
         /// </summary>
-        [HorizontalGroup("buttons"), Button, HideIf(nameof(IsTicking)), HideInEditorMode]
-        public void Restart() {
+        [HorizontalGroup("buttons"), Button, HideIf(nameof(IsTicking)), HideInEditorMode] 
+        public void Restart([CallerMemberName] string src = null) { 
             if (IsDisposed)
             {
                 Debug.LogError("Tried restarting a disposed timer");
                 return;
             }
-            ResetTime();
-            if (!IsTicking) {
-                SetIsTicking(true);
-                if (!IsRegistered)
-                {
-                    IsRegistered = true;
-                    TimerManager.RegisterTimer(this);
-                }
-                OnTimerStart.Invoke();
-            }
+            ResetTime(); 
+            SetIsTicking(true);  
         }
 
         /// <summary> 
@@ -64,15 +56,17 @@ namespace TickTimers {
         /// Invokes <see cref="OnTimerStop"/> and <see cref="OnIsTimerTicking"/>
         /// </summary>
         [HorizontalGroup("buttons"), Button, ShowIf(nameof(IsTicking)), HideInEditorMode]
-        public void StopAndDeregister() { 
-            if (!IsDisposed && IsTicking) {
-                SetIsTicking(false);
-                if(IsRegistered)
-                {
-                    IsRegistered = false;
-                    TimerManager.DeregisterTimer(this);
-                }
-                OnTimerStop.Invoke();
+        public void StopAndDeregister() {
+            if (IsDisposed) {
+                Debug.LogError("tried deregister a disposed timer");
+                return;
+            }
+
+            SetIsTicking(false);
+
+            if (IsRegistered) {
+                IsRegistered = false;
+                TimerManager.DeregisterTimer(this);
             }
         }
 
@@ -88,27 +82,38 @@ namespace TickTimers {
 
         protected abstract void OnTick();
 
+        
         /// <summary> 
         /// Doesn't start or resets the timer, just sets if its paused or running
         /// Invokes <see cref="OnIsTimerTicking"/>
         /// </summary>
         public void SetIsTicking(bool isRunning)
         {
+            if (IsTicking == isRunning)
+                return;
+
             IsTicking = isRunning;
             OnIsTimerTicking.Invoke(IsTicking);
+
+            if(IsTicking && !IsRegistered) {
+                IsRegistered = true;
+                TimerManager.RegisterTimer(this);
+            }
         }
         /// <summary>
         /// Toggles between <see cref="Pause"/> and <see cref="Resume"/>
         /// </summary>
         public void ToggleIsTicking() => SetIsTicking(!IsTicking);
-        /// <summary>
-        /// same as <see cref="SetIsTicking"/> true
+        /// <summary> 
+        /// Resumes the timer. Same as <seealso cref="SetIsTicking(bool)"/> set to true
+        /// <br/>Invokes <seealso cref="OnIsTimerTicking"/>
         /// </summary>
         [HorizontalGroup("buttons"), Button, HideIf(nameof(IsTicking)), HideInEditorMode]
         public void Resume() => SetIsTicking(true);
 
-        /// <summary>
-        /// same as <see cref="SetIsTicking"/> false
+        /// <summary> 
+        /// Pauses the timer. Same as <seealso cref="SetIsTicking(bool)"/> set to false
+        /// <br/>Invokes <seealso cref="OnIsTimerTicking"/>
         /// </summary>
         [HorizontalGroup("buttons"), Button, ShowIf(nameof(IsTicking)), HideInEditorMode]
         public void Pause() => SetIsTicking(false);
@@ -132,11 +137,8 @@ namespace TickTimers {
         protected virtual void Dispose(bool disposing) {
             if (IsDisposed) return;
 
-            if (disposing) {
-                if (IsRegistered)
-                    StopAndDeregister();
-                else if (IsTicking)
-                    SetIsTicking(false);
+            if (disposing) { 
+                StopAndDeregister(); 
             }
 
             IsDisposed = true;
