@@ -13,15 +13,7 @@ namespace TickTimers {
         public float MaxTime;
         public bool StopTickingOnTimerOver;
         public bool DeregisterOnTimerOver;
-        public float NormalizedTimeUnclamped
-        {
-            get
-            {
-                if (MaxTime == 0)
-                    return 1f;
-                return TimeTicked / MaxTime;
-            }
-        }
+        public float NormalizedTimeUnclamped => NormalizedUnclamped(MaxTime);
         [ProgressBar(0, 1), ShowIf(nameof(IsTicking) + "|| Application.isPlaying")]
         public float NormalizedTime => Mathf.Clamp01(NormalizedTimeUnclamped);
         public float Countdown => NormalizedTime - 1f;

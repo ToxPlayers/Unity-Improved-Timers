@@ -13,12 +13,12 @@ namespace TickTimers {
         internal static void Initialize() {
             PlayerLoopSystem currentPlayerLoop = PlayerLoop.GetCurrentPlayerLoop();
 
-            if (!InsertTimerManager<Update>(ref _timerSystem, ref currentPlayerLoop, TimerManager.UpdateTimers, 0)) {
+            if (!InsertTimerManager<PreUpdate>(ref _timerSystem, ref currentPlayerLoop, TimerManager.UpdateTimers, 0)) {
                 Debug.LogWarning("Tick Timers not initialized, unable to register TimerManager into the Update loop.");
                 return;
             }
 
-            if (!InsertTimerManager<FixedUpdate>(ref _fixedTimerSystem, ref currentPlayerLoop, TimerManager.UpdateTimers, 1)) {
+            if (!InsertTimerManager<FixedUpdate>(ref _fixedTimerSystem, ref currentPlayerLoop, TimerManager.UpdateTimers, 0)) {
                 Debug.LogWarning("Tick Timers not initialized, unable to register TimerManager into the Update loop.");
                 return;
             }
@@ -33,8 +33,8 @@ namespace TickTimers {
                 if (state == PlayModeStateChange.ExitingPlayMode)
                 {
                     PlayerLoopSystem currentPlayerLoop = PlayerLoop.GetCurrentPlayerLoop();
-                    RemoveTimerManager(ref currentPlayerLoop); 
-                    EditorApplication.delayCall += TimerManager.DisposeOnPlayModeExit;
+                    RemoveTimerManager(ref currentPlayerLoop);
+                    TimerManager.DisposeOnPlayModeExit();
                 }
             }
 #endif

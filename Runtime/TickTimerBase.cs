@@ -1,5 +1,6 @@
 using Sirenix.OdinInspector;
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using TickTimers;
 using UnityEngine;
@@ -28,20 +29,44 @@ namespace TickTimers {
         public event Action<bool> OnIsTimerTicking = delegate { };
         public bool ReachedTime(float maxTime) => TimeTicked >= maxTime;
         public bool IsRegistered { get; private set; }
-
+        public float NormalizedUnclamped(in float maxTime) {
+            if (maxTime == 0f)
+                return 1f;
+            return TimeTicked / maxTime;
+        }
+        public float Normalized(in float maxTime) => Mathf.Clamp01(NormalizedUnclamped(maxTime));
         public float GetDeltaTime()
         { 
             if (Time.inFixedTimeStep)
                 return UseUnscaledTime ? Time.fixedUnscaledDeltaTime : Time.fixedDeltaTime;
             return UseUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
         } 
-        protected TickTimerBase() { } 
+        protected TickTimerBase() { }
+
+        List<System.Threading.CancellationTokenRegistration> _cancelRegTokens;
+
+        public void BindOnDestroy(in MonoBehaviour behavior) {
+            BindOnDestroy(behavior.destroyCancellationToken);
+        }
+
+        void BindOnDestroy(in System.Threading.CancellationToken cancelToken) {
+            if (IsDisposed) return;
+            _cancelRegTokens ??= new();
+            _cancelRegTokens.Add(cancelToken.Register(OnCancelTokenInvoked));
+
+        }
+
+        void OnCancelTokenInvoked() {
+            if (IsDisposed) return;
+            Dispose(); 
+        }
+
         /// <summary> 
         /// Resets and registers the timer<br/>
         /// Invokes <see cref="OnTimerStop"/> and <see cref="OnIsTimerTicking"/>
         /// </summary>
         [HorizontalGroup("buttons"), Button, HideIf(nameof(IsTicking)), HideInEditorMode] 
-        public void Restart([CallerMemberName] string src = null) { 
+        public void Restart() { 
             if (IsDisposed)
             {
                 Debug.LogError("Tried restarting a disposed timer");
@@ -137,7 +162,12 @@ namespace TickTimers {
         protected virtual void Dispose(bool disposing) {
             if (IsDisposed) return;
 
-            if (disposing) { 
+            if (disposing) {
+                if(_cancelRegTokens != null) {
+                    foreach (var token in _cancelRegTokens)
+                        token.Dispose();
+                    _cancelRegTokens.Clear();
+                }
                 StopAndDeregister(); 
             }
 

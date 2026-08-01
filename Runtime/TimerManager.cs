@@ -58,12 +58,13 @@ namespace TickTimers {
                     timersNotDisposedLog += $" -> from [{timer.TIMER_SOURCE_DEBUG}]";
 #endif
                 }
-                Debug.LogWarning(timersNotDisposedLog);
+                Debug.LogError(timersNotDisposedLog);
             }
             var copySet = new HashSet<TickTimerBase>(_timers);
             foreach (var timer in copySet) 
                 timer.Dispose();
-            _timers.Clear(); 
+            _timers.Clear();
+            _timers.TrimExcess();
         }
     }
 }
