@@ -48,6 +48,9 @@ namespace TickTimers {
         
         public static void DisposeOnPlayModeExit() 
         {
+            if (Application.isPlaying)
+                return;
+
             CommitRegistration();
             if (_timers.Count > 0)
             {

@@ -34,7 +34,7 @@ namespace TickTimers {
                 {
                     PlayerLoopSystem currentPlayerLoop = PlayerLoop.GetCurrentPlayerLoop();
                     RemoveTimerManager(ref currentPlayerLoop);
-                    TimerManager.DisposeOnPlayModeExit();
+                    EditorApplication.delayCall += TimerManager.DisposeOnPlayModeExit;
                 }
             }
 #endif
