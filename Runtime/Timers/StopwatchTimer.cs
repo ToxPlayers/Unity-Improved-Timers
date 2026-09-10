@@ -18,9 +18,6 @@ namespace TickTimers {
         {
             return "Stopwatch(" + TimeTicked + ")";
         }
-
-        public bool ReachedTime(object slowdownAttackDuration) {
-            throw new NotImplementedException();
-        }
+ 
     }
 }
