@@ -25,7 +25,7 @@ namespace TickTimers {
 
                 bool isEqual = CustomComparer != null ?
                     CustomComparer(_curValue, prevValue) :
-                    _curValue.Equals(prevValue);
+                    EqualityComparer<T>.Default.Equals(_curValue, prevValue);
                 if (!isEqual)
                     ResetTime();
             }
