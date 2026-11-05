@@ -1,11 +1,11 @@
 {
   "name": "com.gitamend.improvedtimers",
-  "version": "1.0.2",
+  "version": "1.2.0",
   "displayName": "Improved Timers",
   "description": "Improved Timer System for Unity that hooks into the Unity Player Loop.",
   "unity": "2022.1",
   "author": {
-    "name": "Git Amend",
+    "name": "Git Amend (Modified by Tox)",
     "url": "https://www.youtube.com/@git-amend"
   }
 }
