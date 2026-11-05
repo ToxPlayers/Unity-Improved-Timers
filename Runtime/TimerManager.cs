@@ -30,6 +30,8 @@ namespace TickTimers {
         static void CommitRegistration() { 
             _timers.UnionWith(_toRegister);
             _timers.ExceptWith(_toUnregister);
+            _toRegister.Clear();
+            _toUnregister.Clear();
         }
 
         public static void UpdateTimers() {
@@ -39,11 +41,16 @@ namespace TickTimers {
             IsUpdatingTimers = true;
             CommitRegistration();
             var isFixedStep = Time.inFixedTimeStep;
-            foreach (var timer in _timers)
-                if(timer.FixedUpdateMode == isFixedStep)
-                    timer.Tick(); 
-
-            IsUpdatingTimers = false;
+            foreach (var timer in _timers) {
+				if(timer.FixedUpdateMode == isFixedStep) {
+                    try { timer.Tick(); } 
+                    catch(System.Exception ex) {
+                        Debug.LogException(ex);
+                    }
+                }
+			}
+            
+            IsUpdatingTimers = false; 
         }
         
         public static void DisposeOnPlayModeExit() 
