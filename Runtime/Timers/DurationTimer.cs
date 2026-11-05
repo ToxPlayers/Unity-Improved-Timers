@@ -19,16 +19,23 @@ namespace TickTimers {
         public float Countdown => NormalizedTime - 1f;
         public override bool IsTimerOver => ReachedTime(MaxTime); 
         public int LoopsCount => Mathf.FloorToInt(NormalizedTimeUnclamped);
+        public float OvershotNormalized {
+            get {
+				if(MaxTime <= 0f || TimeTicked < MaxTime)
+					return 0f;
+				var overshotNormalized = NormalizedTimeUnclamped - 1f;
+				return overshotNormalized;
+			}
+        }
         public float DurationOvershot
         {
             get
-            {
-                if(TimeTicked < MaxTime)
-                    return 0f;
-                var normTime = NormalizedTimeUnclamped;
-                var flooredNormTime = Mathf.Floor(normTime);
-                return normTime - flooredNormTime;
-            }
+            { 
+                var overshotNormalized = OvershotNormalized;
+                if(overshotNormalized <= 0f)
+					return 0f;
+                return overshotNormalized * MaxTime;
+			}
         } 
 
         public DurationTimer() : base() { MaxTime = 0f; }
