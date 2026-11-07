@@ -27,7 +27,8 @@ namespace TickTimers {
 			get => _perSeconds;
 			set { _perSeconds = value; RecalculateTimeThreshold(); }
 		}
-		public Action OnTickEvent = delegate { };
+        bool _calculatedTimeThreshold = false;
+        public Action OnTickEvent = delegate { };
 
 		public FrequencyTimer() : base() { 
             RecalculateTimeThreshold(); 
@@ -41,6 +42,8 @@ namespace TickTimers {
 
         protected override void OnTick() {
             if (!IsTicking) return;
+            if (!_calculatedTimeThreshold)
+                RecalculateTimeThreshold();
             TimeTicked += GetDeltaTime();
             if (TimeThreshold <= 0f) return;
             while (IsTicking && TimeTicked >= TimeThreshold) {
@@ -60,7 +63,8 @@ namespace TickTimers {
 			ResetTime();
         }
         
-        void RecalculateTimeThreshold() { 
+        void RecalculateTimeThreshold() {
+            _calculatedTimeThreshold = true;
             TimeThreshold = _ticksPerTime > 0 ? _perSeconds / _ticksPerTime : float.PositiveInfinity;
         }
 
